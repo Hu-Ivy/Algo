@@ -1,8 +1,6 @@
 import queue.MyQueue;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Scanner;
+import java.util.*;
 
 public class Test {
     public static void main(String[] args) {
@@ -13,11 +11,21 @@ public class Test {
         set.add("c");
         set.add("d");
         set.add("e");
-        set.add("aa");
+        set.add("a");
         Iterator iter = set.iterator();
         while(iter.hasNext()){
             String value = (String)iter.next();
             System.out.println(value);
+        }
+        System.out.println("************************");
+        Map<String, String> registry = new HashMap<>();
+        registry.put("d1",null);
+
+
+        Set<String> devices = registry.keySet();
+        for (String d :
+                devices) {
+            System.out.println(registry.get(d));
         }
     }
 }
