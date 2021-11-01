@@ -1,7 +1,10 @@
 package exercise;
 
 
+
+import javax.swing.tree.TreeNode;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 class ListNode {
@@ -31,6 +34,7 @@ public class Hash_L141 {
         System.out.println(res);
     }
 
+
     public static boolean hasCycle(ListNode head) {
         Set<ListNode> set = new HashSet<>();
 
@@ -42,4 +46,6 @@ public class Hash_L141 {
         }
         return false;
     }
+
+
 }
