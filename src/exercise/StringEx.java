@@ -6,16 +6,16 @@ import java.util.*;
 public class StringEx {
     public static void main(String[] args) {
         String[] strs = {
-                "abc", "bcd", "acef", "xyz", "az", "ba", "a", "z"
+                "time", "me", "bell"
         };
-        String str1 = "badc";
-        String str2 = "baba";
+        String str1 = "3[a]2[bc]";
+        String str2 = "a(bcdefghijkl(mno)p)q";
 //        String res = reverseWords(str);
 //        boolean res = isIsomorphic(str1, str2);
 
 //        List<List<String>> res = groupAnagrams(strs);
         //L249
-        List<List<String>> res = groupStrings(strs);
+        int res = minimumLengthEncoding2(strs);
         System.out.println(res);
 
 
@@ -38,6 +38,7 @@ public class StringEx {
 
         return res.toString();
     }
+
     //L14 最长公共前缀 优化
     public static String longestCommonPrefix2(String[] strs) {
         if (strs.length == 0)
@@ -57,6 +58,7 @@ public class StringEx {
         }
         return ans;
     }
+
     //L5 最强回文子串， 动态规划。
     public static String longestPalindrome(String s) {
         int len = s.length();
@@ -108,24 +110,25 @@ public class StringEx {
     }
 
     //49. 字母异位词分组, map的value还可以存储List呢！
+
     /**
      * Map<String, List<String>> map = new HashMap<String, List<String>>();
-     *             for (String str : strs) {
-     *                 char[] array = str.toCharArray();
-     *                 Arrays.sort(array);
-     *                 String key = new String(array);
-     *                 List<String> list = map.getOrDefault(key, new ArrayList<String>());
-     *                 list.add(str);
-     *                 map.put(key, list);
-     *             }
-     *             return new ArrayList<List<String>>(map.values());
+     * for (String str : strs) {
+     * char[] array = str.toCharArray();
+     * Arrays.sort(array);
+     * String key = new String(array);
+     * List<String> list = map.getOrDefault(key, new ArrayList<String>());
+     * list.add(str);
+     * map.put(key, list);
+     * }
+     * return new ArrayList<List<String>>(map.values());
      */
     public static List<List<String>> groupAnagrams(String[] strs) {
         List<List<String>> res = new ArrayList<>(strs.length);
-        if (strs.length==0) {
+        if (strs.length == 0) {
             return res;
         }
-        int index=0;
+        int index = 0;
         Map<String, Integer> map = new HashMap<>();
 
         for (String str :
@@ -137,14 +140,17 @@ public class StringEx {
             if (map.containsKey(key)) {
                 res.get(map.get(key)).add(str);
 
-            }else {
-                map.put(key,index);
-                res.add(new ArrayList<String>(){{add(str);}});
+            } else {
+                map.put(key, index);
+                res.add(new ArrayList<String>() {{
+                    add(str);
+                }});
                 index++;
             }
         }
         return res;
     }
+
     //L151 反转字符串里的单词
     public static String reverseWords(String s) {
         String[] words = s.split(" ");
@@ -180,6 +186,7 @@ public class StringEx {
         }
         return true;
     }
+
     //L249 以为字符串分组
     public static List<List<String>> groupStrings(String[] strings) {
         Map<String, List<String>> map = new HashMap<>();
@@ -187,23 +194,80 @@ public class StringEx {
         for (String str :
                 strings) {
             char[] strChar = str.toCharArray();
-            int n = strChar[0]-'a';
+            int n = strChar[0] - 'a';
             for (int i = 0; i < strChar.length; i++) {
-                int temp = strChar[i]-n;
+                int temp = strChar[i] - n;
                 //此处可以写为    (strChar[i]-n + 26)%26 这样就不用判断是否小于97了。
-                if (temp<97) {
-                    temp +=26;
+                if (temp < 97) {
+                    temp += 26;
                 }
                 strChar[i] = (char) (temp);
             }
             String key = new String(strChar);
 
-            List<String> list = map.getOrDefault(key,new ArrayList<String>());
+            List<String> list = map.getOrDefault(key, new ArrayList<String>());
             list.add(str);
-            map.put(key,list);
+            map.put(key, list);
         }
         return new ArrayList<List<String>>(map.values());
     }
+
+    //L394 字符串解码
+    private static LinkedList<String> stk = new LinkedList<String>();
+    private static int ptr;
+
+    public static String decodeString(String s) {
+        while (ptr < s.length()) {
+            char cur = s.charAt(ptr);
+            if (Character.isDigit(cur)) {
+                // 获取一个数字并进栈
+                String digits = getDigits(s);
+                stk.addLast(digits);
+
+            } else if (Character.isLetter(cur) || cur == '[') {
+                // 获取一个字母并进栈
+                stk.addLast(String.valueOf(s.charAt(ptr++)));
+            } else {
+                ++ptr;
+                LinkedList<String> sub = new LinkedList<>();
+                while (!"[".equals(stk.peekLast())) {
+                    sub.addLast(stk.removeLast());
+                }
+
+                Collections.reverse(sub);
+                // 左括号出栈
+                stk.removeLast();
+                // 此时栈顶为当前 sub 对应的字符串应该出现的次数
+                int repTime = Integer.parseInt(stk.removeLast());
+                StringBuffer t = new StringBuffer();
+                String o = getString(sub);
+
+                while (repTime-- > 0) {
+                    t.append(o);
+                }
+                stk.addLast(t.toString());
+            }
+
+        }
+        return getString(stk);
+    }
+
+    public static String getString(LinkedList<String> v) {
+        StringBuffer ret = new StringBuffer();
+        for (String s : v) {
+            ret.append(s);
+        }
+        return ret.toString();
+    }
+
+    public static String getDigits(String s) {
+        StringBuffer ret = new StringBuffer();
+        while (Character.isDigit(s.charAt(ptr))) {
+            ret.append(s.charAt(ptr++));
+        }
+        return ret.toString();
+    }
+
     //L557 单词反转
     public static String reverseWords3(String s) {
         String[] words = s.split(" ");
@@ -226,5 +290,60 @@ public class StringEx {
         return sb.substring(0, sb.length() - 1);
     }
 
+    //L820 单词的压缩编码，字典树查询后缀法
+    public static int minimumLengthEncoding(String[] words) {
+        Set<String> good = new HashSet<String>(Arrays.asList(words));
+        //枚举所有单词的所有后缀，并使用set删除存在的单词
+        for (String word: words) {
+            for (int k = 1; k < word.length(); ++k) {
+                good.remove(word.substring(k));
+            }
+        }
 
+        int ans = 0;
+        for (String word: good) {
+            ans += word.length() + 1;
+        }
+
+        return ans;
+    }
+    public static int minimumLengthEncoding2(String[] words) {
+        Trie trie = new Trie();
+        int len = 0;
+
+        Arrays.sort(words, (s1, s2) -> s2.length() - s1.length());
+
+        for (String word: words) {
+            len+=trie.insertR(word);
+        }
+        return len;
+    }
+    //L1190 反转每对括号间的子串
+
+    public static String reverseParentheses(String s) {
+        Deque<Character> stack = new ArrayDeque<>();
+        Deque<Character> stack2 = new ArrayDeque<>();
+
+        for (int i = 0; i < s.length(); i++) {
+            char temp = s.charAt(i);
+            if (temp == ')') {
+                while (!stack.isEmpty() && stack.peek() != '(') {
+                    stack2.offer(stack.pop());
+                }
+                stack.pop();
+                while (!stack2.isEmpty()) {
+                    stack.push(stack2.poll());
+                }
+                continue;
+            }
+            stack.push(temp);
+
+        }
+        StringBuilder sb = new StringBuilder();
+        while (!stack.isEmpty()) {
+            char t = stack.pollLast();
+            sb.append(t);
+        }
+        return sb.toString();
+    }
 }
